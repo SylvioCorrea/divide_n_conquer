@@ -18,9 +18,9 @@ C: modelo do artigo onde o pai divide o trabalho com ele
 #define DELTA 1000
 #define ARR_SIZE DELTA * 2^(8)
 
-void make_arr(int arr[], size) {
+void make_arr(int arr[], int size) {
     int i;
-    for(i=0; i<size; i++) [
+    for(i=0; i<size; i++) {
         arr[i] = size-i;
     }
 }
@@ -35,7 +35,7 @@ void bubblesort(int arr[], int size) {
                 temp = arr[i];
                 arr[i] = arr[i+1];
                 arr[i+1] = temp;
-                oredered = 0;
+                ordered = 0;
             }
         }
     }
@@ -49,7 +49,7 @@ void merge(int arr[], int size) {
     while(i<mid) {
         if(arr[i] > arr[j]) {
             temp = arr[i];
-            arr[i] = arr[j]
+            arr[i] = arr[j];
             arr[j] = temp;
             j++;
         }
@@ -57,7 +57,16 @@ void merge(int arr[], int size) {
     }
 }
 
+int calc_father(int child) {
+    if(child%2 == 0) {
+        return (child-2)/2;
+    }
+    return (child-1)/2;
+}
+
 void main(int argc, char** argv) {
+    
+    int arr[ARR_SIZE];
     
     int i;
 	int my_rank;       // Identificador deste processo
@@ -66,14 +75,15 @@ void main(int argc, char** argv) {
 	int delta = 1000;
 	int curr_size;
 	int mid;
-	int lchild, rchild;
+	int father, lchild, rchild;
 	MPI_Status status; // estrutura que guarda o estado de retorno          
     MPI_Init(&argc , &argv);
-    my_rank = MPI_Comm_rank();  // pega pega o numero do processo atual (rank)
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);  // pega pega o numero do processo atual (rank)
     
     // recebo vetor
     if ( my_rank != 0 ) {
-        MPI_Recv(arr, ARR_SIZE, pai, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        father = calc_father(my_rank);
+        MPI_Recv(arr, ARR_SIZE, father, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         printf("[%d] recebeu.\n", my_rank);
         MPI_Get_count(&status, MPI_INT, &curr_size);  // descubro tamanho da mensagem recebida
         lchild = status.MPI_SOURCE * 2 + 1;
@@ -103,10 +113,10 @@ void main(int argc, char** argv) {
         // receber dos filhos
         MPI_Recv (arr, mid, MPI_INT, lchild, MPI_ANY_TAG,
                   MPI_COMM_WORLD, &status);
-        printf("[%d] recebeu devolucao do lchild.\n");           
+        printf("[%d] recebeu devolucao do lchild.\n", my_rank);           
         MPI_Recv (&arr[mid], curr_size-mid, MPI_INT, rchild,
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);   
-        printf("[%d] recebeu devolucao do rchild.\n");
+        printf("[%d] recebeu devolucao do rchild.\n", my_rank);
         merge(arr, curr_size);
     }
 
