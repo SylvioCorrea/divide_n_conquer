@@ -9,14 +9,22 @@ C: modelo do artigo onde o pai divide o trabalho com ele
     mesmo mais um filho
 */
 
+/*
+IMPORTANT: expected number of process to run this
+implementation: 2^(TREE_HEIGHT) - 1
+*/
+
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "mpi.h"
 
-#define DELTA 1000
-#define ARR_SIZE DELTA * 2^(8)
+//Number of 
+#define DELTA 30
+#define TREE_HEIGHT 4
+#define ARR_SIZE DELTA * 2^(TREE_HEIGHT)
+
 
 void make_arr(int arr[], int size) {
     int i;
@@ -41,20 +49,39 @@ void bubblesort(int arr[], int size) {
     }
 }
 
-void merge(int arr[], int size) {
-    int mid = size/2;
+void merge(int arr1[], int arr2[], int size, int res[]) {
+    int size1 = size/2;
+    int size2 = size-size1;
     int i = 0;
-    int j = mid;
-    int temp;
-    while(i<mid) {
-        if(arr[i] > arr[j]) {
-            temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+    int j = 0;
+    int k = 0;
+    while(j<size1 && k<size2) {
+        printf("merge begin\n");
+        if(arr1[j]<arr2[k]) {
+            printf("in\n");
+            res[i] = arr1[j];
             j++;
+        } else {
+            printf("in2\n");
+            res[i] = arr2[k];
+            k++;
         }
         i++;
     }
+    
+    if(j<size1) {
+        printf("in3\n");
+        for(j; j<size1; j++) {
+            res[i] = arr1[j];
+            i++;
+        }
+    } else {
+        printf("in4\n");
+        for(k; k<size2; k++) {
+            res[i] = arr2[k];
+            i++;
+        }
+    }   
 }
 
 int calc_father(int child) {
@@ -83,7 +110,7 @@ void main(int argc, char** argv) {
     // recebo vetor
     if ( my_rank != 0 ) {
         father = calc_father(my_rank);
-        MPI_Recv(arr, ARR_SIZE, father, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(arr, ARR_SIZE, MPI_INT, father, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         printf("[%d] recebeu.\n", my_rank);
         MPI_Get_count(&status, MPI_INT, &curr_size);  // descubro tamanho da mensagem recebida
         lchild = status.MPI_SOURCE * 2 + 1;
@@ -95,10 +122,14 @@ void main(int argc, char** argv) {
         lchild = 1;
         rchild = 2;
     }
-
+    
+    //Important: this will hold the results to be sent up the tree.
+    int *res;
+    
     // dividir ou conquistar?
-    if ( tam_vetor <= delta ) {
+    if ( curr_size <= delta ) {
         bubblesort(arr, curr_size);  // conquisto
+        res = arr; //pointers to the same memory location.
     }
     else {
         // dividir
@@ -117,20 +148,30 @@ void main(int argc, char** argv) {
         MPI_Recv (&arr[mid], curr_size-mid, MPI_INT, rchild,
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);   
         printf("[%d] recebeu devolucao do rchild.\n", my_rank);
-        merge(arr, curr_size);
+        
+        res = malloc(curr_size * sizeof(int));
+        if(!res){
+            printf("malloc failed!\n");
+            exit(1);
+        }
+        
+        merge(arr, arr[mid], curr_size, res);
     }
 
     // mando para o pai
     if ( my_rank !=0 ) {
-        MPI_Send(arr, curr_size, MPI_INT, status.MPI_SOURCE,
+        MPI_Send(res, curr_size, MPI_INT, status.MPI_SOURCE,
                  1, MPI_COMM_WORLD);  // tenho pai, retorno vetor ordenado pra ele
+        
     }
     else {
         printf("Root results:\n");
         for(i=0; i<ARR_SIZE; i++) {
-            printf("%d, ", arr[i]);
+            printf("%d, ", res[i]);
         }
     }
+    
+    free(res);
     
     MPI_Finalize();
 }
