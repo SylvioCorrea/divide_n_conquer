@@ -183,6 +183,6 @@ void main(int argc, char** argv) {
     }
     
     free(res);
-    
+    printf("[%d] done\n", my_rank);
     MPI_Finalize();
 }
