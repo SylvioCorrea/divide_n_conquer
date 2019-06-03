@@ -1,0 +1,2 @@
+git pull
+ladcomp -env mpicc mergesort_mpi.c -o mergesort
