@@ -24,7 +24,7 @@ implementation: 2^(TREE_HEIGHT) - 1
 #define DELTA 30
 #define TREE_HEIGHT 4
 //#define ARR_SIZE DELTA * 2^(TREE_HEIGHT)
-#define ARR_SIZE 30
+#define ARR_SIZE 60
 
 
 void make_arr(int arr[], int size) {
@@ -179,6 +179,7 @@ void main(int argc, char** argv) {
         for(i=0; i<ARR_SIZE; i++) {
             printf("%d, ", res[i]);
         }
+        printf("\n");
     }
     
     free(res);
