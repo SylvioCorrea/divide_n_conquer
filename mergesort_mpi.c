@@ -114,7 +114,7 @@ void main(int argc, char** argv) {
 	MPI_Status status; // estrutura que guarda o estado de retorno          
     MPI_Init(&argc , &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);  // pega pega o numero do processo atual (rank)
-    
+    MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
     
     // recebo vetor
     if ( my_rank != 0 ) {
@@ -143,6 +143,7 @@ void main(int argc, char** argv) {
     }
     // dividir ou conquistar?
     if ( curr_size <= delta ) {
+        printf("[%d] conquering\n", my_rank);
         bubblesort(arr, curr_size);  // conquisto
         copy_arr(arr, res, curr_size);
     }
