@@ -155,7 +155,7 @@ void main(int argc, char** argv) {
             exit(1);
         }
         
-        merge(arr, arr[mid], curr_size, res);
+        merge(arr, &arr[mid], curr_size, res);
     }
 
     // mando para o pai
