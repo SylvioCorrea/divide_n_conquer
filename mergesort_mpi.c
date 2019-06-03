@@ -108,9 +108,6 @@ void main(int argc, char** argv) {
     MPI_Init(&argc , &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);  // pega pega o numero do processo atual (rank)
     
-    printf("size of the array: %d\n", ARR_SIZE);
-    printf("conquering point: %d\n", DELTA);
-    printf("number of processes: %d\n\n", proc_n);
     
     // recebo vetor
     if ( my_rank != 0 ) {
@@ -122,6 +119,9 @@ void main(int argc, char** argv) {
         rchild = status.MPI_SOURCE * 2 + 2;
     }
     else {
+        printf("size of the array: %d\n", ARR_SIZE);
+        printf("conquering point: %d\n", DELTA);
+        printf("number of processes: %d\n\n", proc_n);
         make_arr(arr, ARR_SIZE);      // sou a raiz e portanto gero o vetor - ordem reversa
         curr_size = ARR_SIZE;
         lchild = 1;
