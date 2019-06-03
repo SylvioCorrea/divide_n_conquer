@@ -107,7 +107,7 @@ void main(int argc, char** argv) {
 	int my_rank;       // Identificador deste processo
 	int proc_n;        // Numero de processos disparados pelo usuario na linha de comando (np)  
 	int message;       // Buffer para as mensagens
-	int delta = 1000;
+	int delta = DELTA;
 	int curr_size;
 	int mid;
 	int father, lchild, rchild;
@@ -120,7 +120,7 @@ void main(int argc, char** argv) {
     if ( my_rank != 0 ) {
         father = calc_father(my_rank);
         MPI_Recv(arr, ARR_SIZE, MPI_INT, father, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        printf("[%d] recebeu.\n", my_rank);
+        printf("[%d] received.\n", my_rank);
         MPI_Get_count(&status, MPI_INT, &curr_size);  // descubro tamanho da mensagem recebida
         lchild = status.MPI_SOURCE * 2 + 1;
         rchild = status.MPI_SOURCE * 2 + 2;
@@ -149,6 +149,7 @@ void main(int argc, char** argv) {
     }
     else {
         // dividir
+        printf("[%d] dividing\n", my_rank);
         lchild = status.MPI_SOURCE * 2 + 1;
         rchild = status.MPI_SOURCE * 2 + 2;
         mid = curr_size/2;
@@ -160,10 +161,10 @@ void main(int argc, char** argv) {
         // receber dos filhos
         MPI_Recv (arr, mid, MPI_INT, lchild, MPI_ANY_TAG,
                   MPI_COMM_WORLD, &status);
-        printf("[%d] recebeu devolucao do lchild.\n", my_rank);           
+        printf("[%d] receives from lchild.\n", my_rank);           
         MPI_Recv (&arr[mid], curr_size-mid, MPI_INT, rchild,
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);   
-        printf("[%d] recebeu devolucao do rchild.\n", my_rank);
+        printf("[%d] receives from rchild.\n", my_rank);
         
         
         merge(arr, &arr[mid], curr_size, res);
