@@ -34,6 +34,13 @@ void make_arr(int arr[], int size) {
     }
 }
 
+void copy_arr(arr1, arr2, size) {
+    int i;
+    for(i=0; i<size; i++) {
+        arr2[i] = arr1[i];
+    }
+}
+
 void bubblesort(int arr[], int size) {
     int i, temp;
     int ordered = 0;
@@ -129,12 +136,15 @@ void main(int argc, char** argv) {
     }
     
     //Important: this will hold the results to be sent up the tree.
-    int *res;
-    
+    int *res = malloc(curr_size * sizeof(int));
+    if(!res){
+        printf("malloc failed!\n");
+        exit(1);
+    }
     // dividir ou conquistar?
     if ( curr_size <= delta ) {
         bubblesort(arr, curr_size);  // conquisto
-        res = arr; //pointers to the same memory location.
+        copy_arr(arr, res);
     }
     else {
         // dividir
@@ -154,11 +164,6 @@ void main(int argc, char** argv) {
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);   
         printf("[%d] recebeu devolucao do rchild.\n", my_rank);
         
-        res = malloc(curr_size * sizeof(int));
-        if(!res){
-            printf("malloc failed!\n");
-            exit(1);
-        }
         
         merge(arr, &arr[mid], curr_size, res);
     }
