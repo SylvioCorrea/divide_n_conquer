@@ -34,7 +34,7 @@ void make_arr(int arr[], int size) {
     }
 }
 
-void copy_arr(arr1, arr2, size) {
+void copy_arr(int arr1[], int arr2[], int size) {
     int i;
     for(i=0; i<size; i++) {
         arr2[i] = arr1[i];
@@ -144,7 +144,7 @@ void main(int argc, char** argv) {
     // dividir ou conquistar?
     if ( curr_size <= delta ) {
         bubblesort(arr, curr_size);  // conquisto
-        copy_arr(arr, res);
+        copy_arr(arr, res, curr_size);
     }
     else {
         // dividir
