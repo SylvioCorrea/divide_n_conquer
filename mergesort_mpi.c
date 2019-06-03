@@ -23,7 +23,8 @@ implementation: 2^(TREE_HEIGHT) - 1
 //Number of 
 #define DELTA 30
 #define TREE_HEIGHT 4
-#define ARR_SIZE DELTA * 2^(TREE_HEIGHT)
+//#define ARR_SIZE DELTA * 2^(TREE_HEIGHT)
+#define ARR_SIZE 30
 
 
 void make_arr(int arr[], int size) {
@@ -106,6 +107,10 @@ void main(int argc, char** argv) {
 	MPI_Status status; // estrutura que guarda o estado de retorno          
     MPI_Init(&argc , &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);  // pega pega o numero do processo atual (rank)
+    
+    printf("size of the array: %d\n", ARR_SIZE);
+    printf("conquering point: %d\n", DELTA);
+    printf("number of processes: %d\n\n", proc_n);
     
     // recebo vetor
     if ( my_rank != 0 ) {
